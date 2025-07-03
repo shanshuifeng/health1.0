@@ -63,7 +63,7 @@ public class RegisterView extends JFrame {
         gbc.gridwidth = 1;
         panel.add(genderLabel, gbc);
 
-        genderComboBox = new JComboBox<>(new String[]{"男", "女", "其他"});
+        genderComboBox = new JComboBox<>(new String[]{"男", "女"});
         gbc.gridx = 1;
         panel.add(genderComboBox, gbc);
 

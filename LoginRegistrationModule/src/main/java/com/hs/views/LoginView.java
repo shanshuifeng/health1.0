@@ -137,9 +137,13 @@ public class LoginView extends JFrame {
             @Override
             public void onLoginSuccess(User user) {
                 JOptionPane.showMessageDialog(LoginView.this, "登录成功!");
-                dispose();
+                dispose(); // 关闭登录窗口
 
-                // 根据用户角色跳转到不同界面
+                // 创建并显示主界面
+                SwingUtilities.invokeLater(() -> {
+                    MainView mainView = new MainView(user);
+                    mainView.setVisible(true);
+                });
             }
 
             @Override
@@ -149,23 +153,29 @@ public class LoginView extends JFrame {
 
             @Override
             public void onLoginFailed(String errorMessage) {
-
+                JOptionPane.showMessageDialog(LoginView.this, errorMessage, "登录失败", JOptionPane.ERROR_MESSAGE);
             }
 
             @Override
             public void onPasswordChangeSuccess(User user) {
+                JOptionPane.showMessageDialog(LoginView.this, "密码修改成功!", "成功", JOptionPane.INFORMATION_MESSAGE);
+                dispose(); // 关闭登录窗口
 
+                // 创建并显示主界面
+                SwingUtilities.invokeLater(() -> {
+                    MainView mainView = new MainView(user);
+                    mainView.setVisible(true);
+                });
             }
 
             @Override
             public void onPasswordChangeFailed(String errorMessage) {
-
+                JOptionPane.showMessageDialog(LoginView.this, errorMessage, "密码修改失败", JOptionPane.ERROR_MESSAGE);
             }
         });
 
         loginController.handleLogin(username, password);
     }
-
     private void handleFirstLogin(User user) {
         JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -260,9 +270,8 @@ public class LoginView extends JFrame {
         panel.add(new JLabel("性别:"), gbc);
 
         gbc.gridx = 1;
-        JComboBox<String> genderCombo = new JComboBox<>(new String[]{"男", "女", "其他"});
+        JComboBox<String> genderCombo = new JComboBox<>(new String[]{"男", "女"});
         panel.add(genderCombo, gbc);
-
         // 用户类型
         gbc.gridx = 0;
         gbc.gridy = 7;
