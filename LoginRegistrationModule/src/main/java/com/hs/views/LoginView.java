@@ -4,12 +4,35 @@ import com.hs.utils.LoginController;
 import com.ncu.Common.Users;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.lang.reflect.Constructor;
 import java.util.prefs.Preferences;
 import com.healthsys.common.model.User;
 
+/**
+ * LoginView provides authentication interface for Health System application.
+ * Features include username/password login, remember me functionality,
+ * and role-based redirection after successful authentication.
+ */
 public class LoginView extends JFrame {
-    private JPanel contentPanel;
+    // Constants
+    private static final String APP_NAME = "健康检查系统";
+    private static final String PREFS_KEY = "health_system_prefs";
+    private static final int WINDOW_WIDTH = 500;
+    private static final int WINDOW_HEIGHT = 400;
+
+    // UI Constants
+    private static final Color PRIMARY_COLOR = new Color(0, 120, 215);
+    private static final Color SECONDARY_COLOR = new Color(100, 150, 100);
+    private static final Color BACKGROUND_COLOR = Color.WHITE;
+    private static final Font TITLE_FONT = new Font("Microsoft YaHei", Font.BOLD, 24);
+    private static final Font LABEL_FONT = new Font("Microsoft YaHei", Font.PLAIN, 14);
+    private static final Font BUTTON_FONT = new Font("Microsoft YaHei", Font.BOLD, 14);
+    private static final int COMPONENT_PADDING = 30;
+    private static final int FIELD_GAP = 10;
+    private static final int ROW_GAP = 15;
+
+    // Components
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
@@ -17,91 +40,140 @@ public class LoginView extends JFrame {
     private JCheckBox rememberMeCheck;
     private JCheckBox showPasswordCheck;
     private LoginController loginController;
-    private static final String PREFS_KEY = "health_system_prefs";
 
     public LoginView() {
-        setTitle("健康检查系统 - 登录");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(500, 400);
-        setLocationRelativeTo(null);
-        setResizable(false);
-
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
-        mainPanel.setBackground(Color.WHITE);
-
-        // 标题
-        JLabel titleLabel = new JLabel("健康检查系统", JLabel.CENTER);
-        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 24));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
-        mainPanel.add(titleLabel, BorderLayout.NORTH);
-
-        // 表单面板
-        JPanel formPanel = new JPanel(new GridLayout(4, 1, 10, 15));
-        formPanel.setOpaque(false);
-
-        // 用户名
-        JPanel usernamePanel = createFieldPanel("用户名:", usernameField = new JTextField(20));
-        formPanel.add(usernamePanel);
-
-        // 密码
-        JPanel passwordPanel = createFieldPanel("密码:", passwordField = new JPasswordField(20));
-        formPanel.add(passwordPanel);
-
-        // 选项面板
-        JPanel optionPanel = new JPanel(new GridLayout(1, 2));
-        optionPanel.setOpaque(false);
-
-        rememberMeCheck = new JCheckBox("记住用户名");
-        rememberMeCheck.setFont(new Font("微软雅黑", Font.PLAIN, 12));
-
-        showPasswordCheck = new JCheckBox("显示密码");
-        showPasswordCheck.setFont(new Font("微软雅黑", Font.PLAIN, 12));
-        showPasswordCheck.addActionListener(e -> {
-            passwordField.setEchoChar(showPasswordCheck.isSelected() ? '\0' : '•');
-        });
-
-        optionPanel.add(rememberMeCheck);
-        optionPanel.add(showPasswordCheck);
-        formPanel.add(optionPanel);
-
-        // 按钮面板
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 20, 0));
-        buttonPanel.setOpaque(false);
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
-
-        loginButton = new JButton("登录");
-        loginButton.setFont(new Font("微软雅黑", Font.BOLD, 14));
-        loginButton.setBackground(new Color(70, 130, 180));
-        loginButton.setForeground(Color.BLACK);
-        loginButton.addActionListener(e -> handleLogin());
-
-        registerButton = new JButton("注册");
-        registerButton.setFont(new Font("微软雅黑", Font.BOLD, 14));
-        registerButton.setBackground(new Color(100, 150, 100));
-        registerButton.setForeground(Color.BLACK);
-        registerButton.addActionListener(e -> showRegistrationDialog());
-
-        buttonPanel.add(loginButton);
-        buttonPanel.add(registerButton);
-        formPanel.add(buttonPanel);
-
-        mainPanel.add(formPanel, BorderLayout.CENTER);
-        add(mainPanel);
-
+        initUI();
         initController();
         loadPreferences();
     }
 
-    private JPanel createFieldPanel(String labelText, JComponent field) {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+    private void initUI() {
+        setTitle(APP_NAME + " - 登录");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        setLocationRelativeTo(null);
+        setResizable(false);
+
+        // Main container with proper padding
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(
+                COMPONENT_PADDING, COMPONENT_PADDING,
+                COMPONENT_PADDING, COMPONENT_PADDING));
+        mainPanel.setBackground(BACKGROUND_COLOR);
+
+        // Application title
+        mainPanel.add(createTitlePanel(), BorderLayout.NORTH);
+
+        // Login form
+        mainPanel.add(createFormPanel(), BorderLayout.CENTER);
+
+        add(mainPanel);
+    }
+
+    private JPanel createTitlePanel() {
+        JPanel titlePanel = new JPanel();
+        titlePanel.setOpaque(false);
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, COMPONENT_PADDING, 0));
+
+        JLabel titleLabel = new JLabel(APP_NAME, JLabel.CENTER);
+        titleLabel.setFont(TITLE_FONT);
+        titlePanel.add(titleLabel);
+
+        return titlePanel;
+    }
+
+    private JPanel createFormPanel() {
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setOpaque(false);
+
+        // Input fields
+        usernameField = createInputField();
+        passwordField = new JPasswordField();
+        passwordField.setEchoChar('•');
+
+        formPanel.add(createFieldPanel("用户名:", usernameField));
+        formPanel.add(Box.createVerticalStrut(ROW_GAP));
+        formPanel.add(createFieldPanel("密码:", passwordField));
+        formPanel.add(Box.createVerticalStrut(ROW_GAP));
+
+        // Options panel
+        formPanel.add(createOptionsPanel());
+        formPanel.add(Box.createVerticalStrut(ROW_GAP * 2));
+
+        // Buttons panel
+        formPanel.add(createButtonPanel());
+
+        return formPanel;
+    }
+
+    private JPanel createFieldPanel(String label, JComponent field) {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, FIELD_GAP, 0));
         panel.setOpaque(false);
-        JLabel label = new JLabel(labelText);
-        label.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-        panel.add(label);
-        field.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+
+        JLabel jLabel = new JLabel(label);
+        jLabel.setFont(LABEL_FONT);
+        jLabel.setPreferredSize(new Dimension(60, 25));
+
+        field.setFont(LABEL_FONT);
+        field.setPreferredSize(new Dimension(200, 30));
+
+        panel.add(jLabel);
         panel.add(field);
+
         return panel;
+    }
+
+    private JTextField createInputField() {
+        JTextField field = new JTextField();
+        field.setMaximumSize(new Dimension(250, 30));
+        return field;
+    }
+
+    private JPanel createOptionsPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 0));
+        panel.setOpaque(false);
+
+        rememberMeCheck = new JCheckBox("记住用户名");
+        rememberMeCheck.setFont(LABEL_FONT);
+
+        showPasswordCheck = new JCheckBox("显示密码");
+        showPasswordCheck.setFont(LABEL_FONT);
+        showPasswordCheck.addActionListener(e -> {
+            passwordField.setEchoChar(showPasswordCheck.isSelected() ? '\0' : '•');
+        });
+
+        panel.add(rememberMeCheck);
+        panel.add(showPasswordCheck);
+
+        return panel;
+    }
+
+    private JPanel createButtonPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        panel.setOpaque(false);
+
+        loginButton = createButton("登录", PRIMARY_COLOR, e -> handleLogin());
+        loginButton.setMnemonic(KeyEvent.VK_ENTER);
+        getRootPane().setDefaultButton(loginButton);
+
+        registerButton = createButton("注册", SECONDARY_COLOR, e -> showRegistrationDialog());
+
+        panel.add(loginButton);
+        panel.add(registerButton);
+
+        return panel;
+    }
+
+    private JButton createButton(String text, Color bgColor, java.awt.event.ActionListener listener) {
+        JButton button = new JButton(text);
+        button.setFont(BUTTON_FONT);
+        button.setBackground(bgColor);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setPreferredSize(new Dimension(120, 35));
+        button.addActionListener(listener);
+        return button;
     }
 
     private void initController() {
@@ -111,66 +183,12 @@ public class LoginView extends JFrame {
             public void onLoginSuccess(Users user) {
                 savePreferences();
                 dispose();
-
-                if ("MEDICAL".equals(user.getRole()) || "admin".equals(user.getRole())) {
-                    // 打开HealthcareModule中的医护界面
-                    JFrame healthcareFrame = new JFrame("医疗健康管理系统");
-                    healthcareFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    healthcareFrame.setSize(1200, 800);
-                    healthcareFrame.setLocationRelativeTo(null);
-
-                    try {
-                        com.ncu.Healthcare.Views.MedicalStaffPanel medicalStaffPanel =
-                                new com.ncu.Healthcare.Views.MedicalStaffPanel();
-                        healthcareFrame.add(medicalStaffPanel);
-                        healthcareFrame.setVisible(true);
-                    } catch (Exception e) {
-                        JOptionPane.showMessageDialog(
-                                null,
-                                "无法加载医护界面: " + e.getMessage(),
-                                "系统错误",
-                                JOptionPane.ERROR_MESSAGE
-                        );
-                    }
-                } else {
-                    // 普通用户直接跳转到UserModule的主界面
-                    try {
-                        Class<?> mainViewClass = Class.forName("com.healthsys.common.view.MainView");
-                        Constructor<?> constructor = mainViewClass.getConstructor(com.healthsys.common.model.User.class);
-
-                        // 将Common模块的Users对象转换为UserModule的User对象
-                        com.healthsys.common.model.User moduleUser = new com.healthsys.common.model.User();
-                        moduleUser.setId(Math.toIntExact(user.getId()));
-                        moduleUser.setPhone(user.getPhone());
-                        moduleUser.setPassword(user.getPassword());
-                        moduleUser.setName(user.getName());
-                        moduleUser.setBirthDate(java.sql.Date.valueOf(user.getBirthDate()));
-                        moduleUser.setGender(user.getGender());
-                        moduleUser.setRole(user.getRole());
-                        moduleUser.setIdNumber(user.getIdNumber());
-
-                        Object mainView = constructor.newInstance(moduleUser);
-                        dispose();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        JOptionPane.showMessageDialog(
-                                null,
-                                "无法加载用户界面: " + e.getMessage(),
-                                "系统错误",
-                                JOptionPane.ERROR_MESSAGE
-                        );
-                    }
-                }
-            }
-
-            @Override
-            public void onFirstLogin(Users user) {
-
+                redirectBasedOnRole(user);
             }
 
             @Override
             public void onLoginFailed(String errorMessage) {
-                SwingUtilities.invokeLater(() -> {
+                EventQueue.invokeLater(() -> {
                     JOptionPane.showMessageDialog(
                             LoginView.this,
                             errorMessage,
@@ -182,16 +200,69 @@ public class LoginView extends JFrame {
                 });
             }
 
-            @Override
-            public void onPasswordChangeSuccess(Users user) {
-
-            }
-
-            @Override
-            public void onPasswordChangeFailed(String errorMessage) {
-
-            }
+            @Override public void onFirstLogin(Users user) {}
+            @Override public void onPasswordChangeSuccess(Users user) {}
+            @Override public void onPasswordChangeFailed(String errorMessage) {}
         });
+    }
+
+    private void redirectBasedOnRole(Users user) {
+        if (user.getRole().matches("MEDICAL|admin")) {
+            openMedicalInterface();
+        } else {
+            openUserInterface(user);
+        }
+    }
+
+    private void openMedicalInterface() {
+        try {
+            SwingUtilities.invokeLater(() -> {
+                JFrame frame = new JFrame("医疗健康管理系统");
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(1200, 800);
+                frame.setLocationRelativeTo(null);
+
+                com.ncu.Healthcare.Views.MedicalStaffPanel panel =
+                        new com.ncu.Healthcare.Views.MedicalStaffPanel();
+                frame.add(panel);
+                frame.setVisible(true);
+            });
+        } catch (Exception e) {
+            showError("医护界面加载失败", e.getMessage());
+        }
+    }
+
+    private void openUserInterface(Users user) {
+        try {
+            Class<?> mainViewClass = Class.forName("com.healthsys.common.view.MainView");
+            Constructor<?> constructor = mainViewClass.getConstructor(User.class);
+            User moduleUser = convertUser(user);
+            constructor.newInstance(moduleUser);
+        } catch (Exception e) {
+            showError("用户界面加载失败", e.getMessage());
+        }
+    }
+
+    private User convertUser(Users user) {
+        User moduleUser = new User();
+        moduleUser.setId(Math.toIntExact(user.getId()));
+        moduleUser.setPhone(user.getPhone());
+        moduleUser.setPassword(user.getPassword());
+        moduleUser.setName(user.getName());
+        moduleUser.setBirthDate(java.sql.Date.valueOf(user.getBirthDate()));
+        moduleUser.setGender(user.getGender());
+        moduleUser.setRole(user.getRole());
+        moduleUser.setIdNumber(user.getIdNumber());
+        return moduleUser;
+    }
+
+    private void showError(String title, String message) {
+        JOptionPane.showMessageDialog(
+                this,
+                message,
+                title,
+                JOptionPane.ERROR_MESSAGE
+        );
     }
 
     private void handleLogin() {
@@ -199,25 +270,27 @@ public class LoginView extends JFrame {
         String password = new String(passwordField.getPassword());
 
         if (username.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "请输入用户名", "提示", JOptionPane.WARNING_MESSAGE);
+            showWarning("请输入用户名");
+            usernameField.requestFocus();
             return;
         }
 
         if (password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "请输入密码", "提示", JOptionPane.WARNING_MESSAGE);
+            showWarning("请输入密码");
+            passwordField.requestFocus();
             return;
         }
 
         loginController.handleLogin(username, password);
     }
 
-    private void styleButton(JButton button, Color bgColor) {
-        button.setFont(new Font("微软雅黑", Font.BOLD, 16));
-        button.setBackground(bgColor);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    private void showWarning(String message) {
+        JOptionPane.showMessageDialog(
+                this,
+                message,
+                "输入验证",
+                JOptionPane.WARNING_MESSAGE
+        );
     }
 
     private void loadPreferences() {
@@ -240,7 +313,9 @@ public class LoginView extends JFrame {
     }
 
     private void showRegistrationDialog() {
-        RegisterView registerView = new RegisterView();
-        registerView.setVisible(true);
+        EventQueue.invokeLater(() -> {
+            RegisterView registerView = new RegisterView();
+            registerView.setVisible(true);
+        });
     }
 }

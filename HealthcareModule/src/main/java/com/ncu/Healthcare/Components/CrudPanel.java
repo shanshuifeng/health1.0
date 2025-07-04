@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -18,6 +17,7 @@ public abstract class CrudPanel<T> extends JPanel {
 
     public CrudPanel() {
         setLayout(new BorderLayout());
+        setBackground(new Color(245, 245, 245)); // 统一背景色
         createToolbar();
         createContent();
     }
@@ -27,11 +27,11 @@ public abstract class CrudPanel<T> extends JPanel {
         toolbar.setBackground(new Color(245, 245, 245));
         toolbar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 220, 220)));
 
-        // 创建按钮面板(左侧)
+        // 按钮面板
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         buttonPanel.setBackground(new Color(245, 245, 245));
 
-        // 创建所有按钮并添加到按钮面板
+        // 创建按钮 - 使用第一次代码的样式
         addButton = createStyledButton("添加", new Color(102, 153, 204));
         editButton = createStyledButton("编辑", new Color(153, 204, 255));
         deleteButton = createStyledButton("删除", new Color(204, 153, 153));
@@ -40,21 +40,20 @@ public abstract class CrudPanel<T> extends JPanel {
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
 
-        // 创建搜索面板(右侧)
+        // 搜索面板
         searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         searchPanel.setBackground(new Color(245, 245, 245));
 
-        // 创建搜索按钮并添加到搜索面板
         searchButton = createStyledButton("查询", new Color(153, 204, 153));
         searchPanel.add(searchButton);
 
-        // 将按钮面板和搜索面板添加到工具栏
         toolbar.add(buttonPanel, BorderLayout.WEST);
         toolbar.add(searchPanel, BorderLayout.CENTER);
 
         add(toolbar, BorderLayout.NORTH);
     }
 
+    // 统一的按钮创建方法 - 与第一次代码风格一致
     public static JButton createStyledButton(String text, Color bgColor) {
         JButton button = new JButton(text);
         button.setFont(new Font("微软雅黑", Font.BOLD, 14));
@@ -81,6 +80,7 @@ public abstract class CrudPanel<T> extends JPanel {
 
     private void createContent() {
         contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBackground(new Color(245, 245, 245));
         add(contentPanel, BorderLayout.CENTER);
     }
 
@@ -92,25 +92,11 @@ public abstract class CrudPanel<T> extends JPanel {
     }
 
     // Getter方法
-    public JButton getAddButton() {
-        return addButton;
-    }
-
-    public JButton getEditButton() {
-        return editButton;
-    }
-
-    public JButton getDeleteButton() {
-        return deleteButton;
-    }
-
-    public JButton getSearchButton() {
-        return searchButton;
-    }
-
-    public JPanel getSearchPanel() {
-        return searchPanel;
-    }
+    public JButton getAddButton() { return addButton; }
+    public JButton getEditButton() { return editButton; }
+    public JButton getDeleteButton() { return deleteButton; }
+    public JButton getSearchButton() { return searchButton; }
+    public JPanel getSearchPanel() { return searchPanel; }
 
     public abstract void refreshData();
 }

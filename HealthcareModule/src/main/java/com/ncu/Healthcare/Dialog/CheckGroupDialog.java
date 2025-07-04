@@ -1,6 +1,7 @@
 package com.ncu.Healthcare.Dialog;
 
 import com.ncu.Common.CheckItemGroup;
+import com.ncu.Healthcare.Components.CrudPanel;
 import javax.swing.*;
 import java.awt.*;
 

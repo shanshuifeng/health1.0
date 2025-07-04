@@ -25,8 +25,9 @@ public class MedicalStaffPanel extends JPanel {
 
     public MedicalStaffPanel() {
         setLayout(new BorderLayout());
+        setBackground(new Color(245, 245, 245));
 
-        // 创建侧边栏
+        // 创建侧边栏 - 风格与第一次代码一致
         createSidebar();
 
         // 创建内容区域
@@ -39,68 +40,69 @@ public class MedicalStaffPanel extends JPanel {
     private void createSidebar() {
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setBackground(new Color(51, 102, 153));
+        sidebar.setBackground(new Color(70, 104, 197)); // 使用第一次代码的蓝色
         sidebar.setPreferredSize(new Dimension(220, Integer.MAX_VALUE));
         sidebar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         String[] navItems = {"首页", "检查项", "检查组", "用户管理", "预约管理", "关于", "退出系统"};
 
-        for (int i = 0; i < navItems.length; i++) {
-            JButton button = new JButton(navItems[i]);
-            // button.setIcon(icons[i]); // 添加图标
+        for (String item : navItems) {
+            JButton button = new JButton(item);
             button.setAlignmentX(Component.LEFT_ALIGNMENT);
-            button.setBorder(BorderFactory.createEmptyBorder(12, 25, 12, 25));
-            button.setBackground(new Color(51, 102, 153));
-            button.setForeground(Color.BLACK);
-            button.setFocusPainted(false);
+            button.setMaximumSize(new Dimension(180, 50));
+            button.setPreferredSize(new Dimension(180, 50));
             button.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+            button.setBackground(new Color(90, 124, 217)); // 稍亮的蓝色
+            button.setForeground(Color.BLACK);
+            button.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+            button.setHorizontalAlignment(SwingConstants.LEFT);
+            button.setFocusPainted(false);
             button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
             // 悬停效果
             button.addMouseListener(new MouseAdapter() {
                 public void mouseEntered(MouseEvent evt) {
-                    button.setBackground(new Color(70, 130, 180));
+                    button.setBackground(new Color(120, 150, 240)); // 悬停时更亮的蓝色
                 }
                 public void mouseExited(MouseEvent evt) {
-                    button.setBackground(new Color(51, 102, 153));
+                    button.setBackground(new Color(90, 124, 217));
                 }
             });
 
-            button.addActionListener(getNavActionListener(navItems[i]));
+            button.addActionListener(getNavActionListener(item));
             sidebar.add(button);
-            sidebar.add(Box.createRigidArea(new Dimension(0, 8)));
+            sidebar.add(Box.createRigidArea(new Dimension(0, 5))); // 间距与第一次代码一致
         }
 
+        // 底部弹性空间
+        sidebar.add(Box.createVerticalGlue());
         add(sidebar, BorderLayout.WEST);
     }
 
     private ActionListener getNavActionListener(String itemName) {
-        return new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                switch (itemName) {
-                    case "首页":
-                        showHome();
-                        break;
-                    case "检查项":
-                        showCheckItems();
-                        break;
-                    case "检查组":
-                        showCheckGroups();
-                        break;
-                    case "用户管理":
-                        showUserManagement();
-                        break;
-                    case "预约管理":
-                        showAppointmentManagement();
-                        break;
-                    case "关于":
-                        showMessage("关于", "这是一个医疗健康管理系统。");
-                        break;
-                    case "退出系统":
-                        System.exit(0);
-                        break;
-                }
+        return e -> {
+            switch (itemName) {
+                case "首页":
+                    showHome();
+                    break;
+                case "检查项":
+                    showCheckItems();
+                    break;
+                case "检查组":
+                    showCheckGroups();
+                    break;
+                case "用户管理":
+                    showUserManagement();
+                    break;
+                case "预约管理":
+                    showAppointmentManagement();
+                    break;
+                case "关于":
+                    showMessage("关于", "这是一个医疗健康管理系统。");
+                    break;
+                case "退出系统":
+                    System.exit(0);
+                    break;
             }
         };
     }
@@ -108,24 +110,31 @@ public class MedicalStaffPanel extends JPanel {
     private void createContentArea() {
         contentPanel = new JPanel();
         contentPanel.setLayout(new CardLayout());
-        contentPanel.setBackground(new Color(245, 245, 245));
+        contentPanel.setBackground(new Color(245, 245, 245)); // 与第一次代码一致的背景色
         contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         add(contentPanel, BorderLayout.CENTER);
     }
 
     private void showHome() {
         JPanel homePanel = new JPanel(new BorderLayout());
-        JLabel label = new JLabel("欢迎使用医疗健康管理系统", SwingConstants.CENTER);
-        label.setFont(new Font("微软雅黑", Font.PLAIN, 24));
-        homePanel.add(label, BorderLayout.CENTER);
+        homePanel.setBackground(new Color(245, 245, 245));
 
-        CardLayout cardLayout = (CardLayout) contentPanel.getLayout();
-        cardLayout.show(contentPanel, "home");
+        JLabel welcomeLabel = new JLabel("欢迎使用医疗健康管理系统", JLabel.CENTER);
+        welcomeLabel.setFont(new Font("微软雅黑", Font.BOLD, 24));
+        welcomeLabel.setForeground(new Color(70, 104, 197)); // 标题颜色与导航栏一致
+
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setBackground(new Color(245, 245, 245));
+        centerPanel.add(welcomeLabel);
+
+        homePanel.add(centerPanel, BorderLayout.CENTER);
+
         contentPanel.add(homePanel, "home");
+        ((CardLayout) contentPanel.getLayout()).show(contentPanel, "home");
     }
 
     private void showMessage(String title, String message) {
-        MessageDialog.showMessage(this, title, message);
+        JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void showCheckItems() {
@@ -133,7 +142,6 @@ public class MedicalStaffPanel extends JPanel {
             checkItemPanel = new CheckItemPanel();
             contentPanel.add(checkItemPanel, "checkItems");
         }
-
         ((CardLayout) contentPanel.getLayout()).show(contentPanel, "checkItems");
     }
 
@@ -142,7 +150,6 @@ public class MedicalStaffPanel extends JPanel {
             checkGroupPanel = new CheckGroupPanel();
             contentPanel.add(checkGroupPanel, "checkGroups");
         }
-
         ((CardLayout) contentPanel.getLayout()).show(contentPanel, "checkGroups");
     }
 
@@ -151,16 +158,14 @@ public class MedicalStaffPanel extends JPanel {
             userPanel = new UserPanel();
             contentPanel.add(userPanel, "users");
         }
-
         ((CardLayout) contentPanel.getLayout()).show(contentPanel, "users");
     }
+
     private void showAppointmentManagement() {
         if (appointmentPanel == null) {
             appointmentPanel = new AppointmentPanel();
             contentPanel.add(appointmentPanel, "appointments");
         }
-
         ((CardLayout) contentPanel.getLayout()).show(contentPanel, "appointments");
     }
 }
-
