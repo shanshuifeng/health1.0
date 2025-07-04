@@ -15,7 +15,7 @@ public class AppointmentDAO {
         StringBuilder sql = new StringBuilder("SELECT a.*, u.name as user_name, p.name as package_name " +
                 "FROM appointments a " +
                 "LEFT JOIN users u ON a.user_id = u.id " +
-                "LEFT JOIN check_item_groups p ON a.package_id = p.id " +
+                "LEFT JOIN text_packages p ON a.package_id = p.id " +
                 "WHERE 1=1");
 
         if (userName != null && !userName.isEmpty()) {
@@ -130,7 +130,7 @@ public class AppointmentDAO {
         String sql = "SELECT a.*, u.name as user_name, p.name as package_name " +
                 "FROM appointments a " +
                 "LEFT JOIN users u ON a.user_id = u.id " +
-                "LEFT JOIN check_item_groups p ON a.package_id = p.id " +
+                "LEFT JOIN test_packages p ON a.package_id = p.id " +
                 "ORDER BY a.appointment_time DESC";
 
         try (Connection conn = DbUtil.getConnection();

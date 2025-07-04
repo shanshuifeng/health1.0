@@ -12,7 +12,7 @@ public class CheckItemDAO {
 
     public List<CheckItem> search(String name, String code) {
         List<CheckItem> checkItems = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT * FROM check_items WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT * FROM medical_tests WHERE 1=1");
 
         if (name != null && !name.isEmpty()) {
             sql.append(" AND name LIKE ?");
@@ -55,7 +55,7 @@ public class CheckItemDAO {
 
     public List<CheckItem> getAll() {
         List<CheckItem> checkItems = new ArrayList<>();
-        String sql = "SELECT * FROM check_items";
+        String sql = "SELECT * FROM medical_tests";
 
         try (Connection conn = DbUtil.getConnection();
              Statement stmt = conn.createStatement();
@@ -81,7 +81,7 @@ public class CheckItemDAO {
     }
 
     public CheckItem getById(Long id) {
-        String sql = "SELECT * FROM check_items WHERE id = ?";
+        String sql = "SELECT * FROM medical_tests WHERE id = ?";
 
         try (Connection conn = DbUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -110,7 +110,7 @@ public class CheckItemDAO {
 
     // 添加检查项
     public boolean add(CheckItem item) {
-        String sql = "INSERT INTO check_items (name, code, description, normal_range, price, created_at) " +
+        String sql = "INSERT INTO medical_tests (name, code, description, normal_range, price, created_at) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DbUtil.getConnection();
@@ -133,7 +133,7 @@ public class CheckItemDAO {
 
     // 更新检查项
     public boolean update(CheckItem item) {
-        String sql = "UPDATE check_items SET name = ?, code = ?, description = ?, " +
+        String sql = "UPDATE medical_tests SET name = ?, code = ?, description = ?, " +
                 "normal_range = ?, price = ? WHERE id = ?";
 
         try (Connection conn = DbUtil.getConnection();
@@ -155,7 +155,7 @@ public class CheckItemDAO {
     }
 
     public boolean delete(Long id) {
-        String sql = "DELETE FROM check_items WHERE id = ?";
+        String sql = "DELETE FROM medical_tests WHERE id = ?";
 
         try (Connection conn = DbUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

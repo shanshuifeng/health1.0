@@ -51,7 +51,7 @@ public class MedicalStaffPanel extends JPanel {
             button.setAlignmentX(Component.LEFT_ALIGNMENT);
             button.setBorder(BorderFactory.createEmptyBorder(12, 25, 12, 25));
             button.setBackground(new Color(51, 102, 153));
-            button.setForeground(Color.WHITE);
+            button.setForeground(Color.BLACK);
             button.setFocusPainted(false);
             button.setFont(new Font("微软雅黑", Font.PLAIN, 14));
             button.setCursor(new Cursor(Cursor.HAND_CURSOR));

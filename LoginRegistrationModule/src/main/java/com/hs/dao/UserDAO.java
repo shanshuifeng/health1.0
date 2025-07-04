@@ -1,37 +1,34 @@
 package com.hs.dao;
 
-
-
-import com.hs.utils.User;
-
+import com.ncu.Common.DbUtil;
+import com.ncu.Common.Users;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 
 public class UserDAO {
-    public static final String ADMIN_INITIAL_PASSWORD = "admin123";
-    public static final String USER_INITIAL_PASSWORD = "user123";
+    public static final String ADMIN_INITIAL_PASSWORD = "admin";
+    public static final String USER_INITIAL_PASSWORD = "user1";
 
-    public com.hs.utils.User getUserByUsername(String username) {
-        String sql = "SELECT * FROM users WHERE username = ?";
+    public Users getUserByUsername(String username) {
+        String sql = "SELECT * FROM users WHERE name = ?";
         try (Connection conn = DbUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new User(
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        rs.getString("password"),
-                        rs.getString("role"),
-                        rs.getBoolean("first_login"),
-                        rs.getString("name"),
-                        rs.getString("phone"),
-                        rs.getDate("birth_date") != null ? rs.getDate("birth_date").toLocalDate() : null,
-                        rs.getString("gender"),
-                        rs.getString("id_card")
-                );
+                Users user = new Users();
+                user.setId(rs.getLong("id"));
+                user.setPhone(rs.getString("phone"));
+                user.setPassword(rs.getString("password"));
+                user.setName(rs.getString("name"));
+                if(rs.getDate("birth_date") != null) {
+                    user.setBirthDate(rs.getDate("birth_date").toLocalDate());
+                }
+                user.setGender(rs.getString("gender"));
+                user.setRole(rs.getString("role"));
+                user.setIdNumber(rs.getString("id_number"));
+                return user;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -39,47 +36,35 @@ public class UserDAO {
         return null;
     }
 
-    // 新增方法：获取所有操作员（医护人员和管理员）
-    public List<User> getAllOperators() {
-        List<User> operators = new ArrayList<>();
-        String sql = "SELECT * FROM users WHERE role IN ('admin', 'doctor') ORDER BY created_at DESC";
-        try (Connection conn = DbUtil.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                operators.add(new User(
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        rs.getString("password"),
-                        rs.getString("role"),
-                        rs.getBoolean("first_login"),
-                        rs.getString("name"),
-                        rs.getString("phone"),
-                        rs.getDate("birth_date") != null ? rs.getDate("birth_date").toLocalDate() : null,
-                        rs.getString("gender"),
-                        rs.getString("id_card")
-                ));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return operators;
-    }
-
-    public boolean addUser(User user) {
-        String sql = "INSERT INTO users (username, password, role, first_login, name, phone, birth_date, gender, id_card) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public boolean addUser(Users user) {
+        String sql = "INSERT INTO users (phone, password, name, birth_date, gender, role, id_number) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DbUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getPassword());
-            stmt.setString(3, user.getRole());
-            stmt.setBoolean(4, user.isFirstLogin());
-            stmt.setString(5, user.getName());
-            stmt.setString(6, user.getPhone());
-            stmt.setDate(7, user.getBirthDate() != null ? java.sql.Date.valueOf(user.getBirthDate()) : null);
-            stmt.setString(8, user.getGender());
-            stmt.setString(9, "doctor".equals(user.getRole()) ? user.getIdCard() : null);
+            // 验证phone字段(20字符限制)
+            stmt.setString(1, user.getPhone() != null ?
+                    user.getPhone().length() > 20 ? user.getPhone().substring(0, 20) : user.getPhone() : "");
+            stmt.setString(2, user.getPassword()); // 密码已在业务层验证
+            // 验证name字段(50字符限制)
+            stmt.setString(3, user.getName() != null ?
+                    user.getName().length() > 50 ? user.getName().substring(0, 50) : user.getName() : "");
+
+            LocalDate birthDate = user.getBirthDate() != null ? user.getBirthDate() : LocalDate.now().minusYears(20);
+            stmt.setDate(4, java.sql.Date.valueOf(birthDate));
+
+            // 严格验证gender字段
+            String gender = "MALE".equalsIgnoreCase(user.getGender()) ? "MALE" :
+                    "FEMALE".equalsIgnoreCase(user.getGender()) ? "FEMALE" : "MALE";
+            stmt.setString(5, gender);
+
+            // 严格验证role字段
+            String role = "USER".equalsIgnoreCase(user.getRole()) ? "USER" :
+                    "MEDICAL".equalsIgnoreCase(user.getRole()) ? "MEDICAL" : "USER";
+            stmt.setString(6, role);
+
+            // 验证id_number字段(18字符限制)
+            stmt.setString(7, "MEDICAL".equals(role) && user.getIdNumber() != null ?
+                    user.getIdNumber().length() > 18 ? user.getIdNumber().substring(0, 18) : user.getIdNumber() : null);
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -88,12 +73,45 @@ public class UserDAO {
         }
     }
 
-    public boolean updateUserPassword(int userId, String newPassword) {
-        String sql = "UPDATE users SET password = ?, first_login = false WHERE id = ?";
+    public boolean updateUser(Users user) {
+        String sql = "UPDATE users SET phone = ?, name = ?, birth_date = ?, gender = ?, id_number = ? WHERE id = ?";
+        try (Connection conn = DbUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            // 验证phone字段
+            stmt.setString(1, user.getPhone() != null ?
+                    user.getPhone().length() > 20 ? user.getPhone().substring(0, 20) : user.getPhone() : "");
+
+            // 验证name字段
+            stmt.setString(2, user.getName() != null ?
+                    user.getName().length() > 50 ? user.getName().substring(0, 50) : user.getName() : "");
+
+            LocalDate birthDate = user.getBirthDate() != null ? user.getBirthDate() : LocalDate.now().minusYears(20);
+            stmt.setDate(3, java.sql.Date.valueOf(birthDate));
+
+            // 验证gender字段
+            String gender = "MALE".equalsIgnoreCase(user.getGender()) ? "MALE" :
+                    "FEMALE".equalsIgnoreCase(user.getGender()) ? "FEMALE" : "MALE";
+            stmt.setString(4, gender);
+
+            // 验证id_number字段
+            stmt.setString(5, "MEDICAL".equalsIgnoreCase(user.getRole()) && user.getIdNumber() != null ?
+                    user.getIdNumber().length() > 18 ? user.getIdNumber().substring(0, 18) : user.getIdNumber() : null);
+
+            stmt.setLong(6, user.getId());
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateUserPassword(long userId, String newPassword) {
+        String sql = "UPDATE users SET password = ? WHERE id = ?";
         try (Connection conn = DbUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, newPassword);
-            stmt.setInt(2, userId);
+            stmt.setLong(2, userId);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -101,49 +119,4 @@ public class UserDAO {
         }
     }
 
-    public boolean isUsernameExists(String username) {
-        String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
-        try (Connection conn = DbUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, username);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-    // UserDAO.java 中添加以下方法
-    public boolean deleteUser(int userId) {
-        String sql = "DELETE FROM users WHERE id = ?";
-        try (Connection conn = DbUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean updateUser(User user) {
-        String sql = "UPDATE users SET username = ?, name = ?, phone = ?, birth_date = ?, gender = ?, id_card = ? WHERE id = ?";
-        try (Connection conn = DbUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getName());
-            stmt.setString(3, user.getPhone());
-            stmt.setDate(4, user.getBirthDate() != null ? java.sql.Date.valueOf(user.getBirthDate()) : null);
-            stmt.setString(5, user.getGender());
-            stmt.setString(6, "doctor".equals(user.getRole()) ? user.getIdCard() : null);
-            stmt.setInt(7, user.getId());
-
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 }

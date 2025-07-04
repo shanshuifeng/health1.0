@@ -1,13 +1,11 @@
 package com.hs.views;
 
-import com.hs.utils.User;
 import com.hs.dao.UserDAO;
+import com.ncu.Common.Users;
 import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -80,13 +78,6 @@ public class RegisterView extends JFrame {
         gbc.gridx = 1;
         panel.add(birthDateChooser, gbc);
 
-        // 用户类型
-        JLabel userTypeLabel = new JLabel("用户类型:");
-        userTypeLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-        gbc.gridx = 0;
-        gbc.gridy = 8;
-        panel.add(userTypeLabel, gbc);
-
         // 注册按钮
         registerButton = new JButton("注册");
         registerButton.setFont(new Font("微软雅黑", Font.PLAIN, 14));
@@ -101,19 +92,14 @@ public class RegisterView extends JFrame {
                 return;
             }
 
-            // 创建用户对象 - 固定为patient角色
-            User newUser = new User(
-                    0,
-                    usernameField.getText().trim(),
-                    new String(passwordField.getPassword()),
-                    "patient", // 固定为普通用户
-                    true,
-                    nameField.getText().trim(),
-                    phoneField.getText().trim(),
-                    birthDateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
-                    (String) genderComboBox.getSelectedItem(),
-                    null // 普通用户不需要身份证号
-            );
+            Users newUser = new Users();
+            newUser.setPhone(usernameField.getText().trim());
+            newUser.setPassword(new String(passwordField.getPassword()));
+            newUser.setRole("patient");
+            newUser.setName(nameField.getText().trim());
+            newUser.setPhone(phoneField.getText().trim());
+            newUser.setBirthDate(birthDateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            newUser.setGender((String) genderComboBox.getSelectedItem());
 
             UserDAO userDAO = new UserDAO();
             if (userDAO.addUser(newUser)) {

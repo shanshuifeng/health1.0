@@ -12,7 +12,7 @@ public class CheckItemGroupDAO {
 
     public List<CheckItemGroup> search(Long id, String name) {
         List<CheckItemGroup> groups = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT * FROM check_item_groups WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT * FROM package_tests WHERE 1=1");
 
         if (id != null) {
             sql.append(" AND id = ?");
@@ -52,7 +52,7 @@ public class CheckItemGroupDAO {
     }
     public List<CheckItemGroup> getAll() {
         List<CheckItemGroup> groups = new ArrayList<>();
-        String sql = "SELECT * FROM check_item_groups";
+        String sql = "SELECT * FROM medical_tests";
 
         try (Connection conn = DbUtil.getConnection();
              Statement stmt = conn.createStatement();
@@ -75,35 +75,8 @@ public class CheckItemGroupDAO {
         return groups;
     }
 
-    public CheckItemGroup getById(Long id) {
-        String sql = "SELECT * FROM check_item_groups WHERE id = ?";
-
-        try (Connection conn = DbUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setLong(1, id);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    CheckItemGroup group = new CheckItemGroup();
-                    group.setId(rs.getLong("id"));
-                    group.setName(rs.getString("name"));
-                    group.setDescription(rs.getString("description"));
-                    group.setPrice(rs.getDouble("price"));
-                    group.setCreatedAt(rs.getObject("created_at", java.time.LocalDateTime.class));
-
-                    return group;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        return null;
-    }
-
     public boolean add(CheckItemGroup group) {
-        String sql = "INSERT INTO check_item_groups (name, description, price, created_at) " +
+        String sql = "INSERT INTO test_packages (name, description, price, created_at) " +
                 "VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DbUtil.getConnection();
@@ -124,7 +97,7 @@ public class CheckItemGroupDAO {
 
     // 更新检查组
     public boolean update(CheckItemGroup group) {
-        String sql = "UPDATE check_item_groups SET name = ?, description = ?, price = ? " +
+        String sql = "UPDATE test_packages SET name = ?, description = ?, price = ? " +
                 "WHERE id = ?";
 
         try (Connection conn = DbUtil.getConnection();
@@ -144,7 +117,7 @@ public class CheckItemGroupDAO {
     }
 
     public boolean delete(Long id) {
-        String sql = "DELETE FROM check_item_groups WHERE id = ?";
+        String sql = "DELETE FROM test_packages WHERE id = ?";
 
         try (Connection conn = DbUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
