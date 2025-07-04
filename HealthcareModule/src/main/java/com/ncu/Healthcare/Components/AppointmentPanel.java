@@ -1,8 +1,8 @@
 package com.ncu.Healthcare.Components;
 
-import com.ncu.Common.Users;
-import com.ncu.Healthcare.Dialog.UserDialog;
-import com.ncu.Healthcare.dao.UserDAO;
+import com.ncu.Common.Appointment;
+import com.ncu.Healthcare.Dialog.AppointmentDialog;
+import com.ncu.Healthcare.dao.AppointmentDAO;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -10,15 +10,14 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.util.List;
 
-public class UserPanel extends CrudPanel<Users> {
-    private UserDAO userDAO;
+public class AppointmentPanel extends CrudPanel<Appointment> {
+    private AppointmentDAO appointmentDAO;
     private JTable table;
-    private UserTableModel tableModel;
-    private JTextField idSearchField;
-    private JTextField nameSearchField;
+    private AppointmentTableModel tableModel;
+    private JTextField userNameSearchField;
 
-    public UserPanel() {
-        userDAO = new UserDAO();
+    public AppointmentPanel() {
+        appointmentDAO = new AppointmentDAO();
         initializeTable();
         refreshData();
         setupButtonListeners();
@@ -27,33 +26,19 @@ public class UserPanel extends CrudPanel<Users> {
 
     private void setupSearchPanel() {
         // 添加查询字段
-        getSearchPanel().add(new JLabel("ID:"));
-        idSearchField = new JTextField(8);
-        getSearchPanel().add(idSearchField);
+        getSearchPanel().add(new JLabel("用户名:"));
+        userNameSearchField = new JTextField(15);
+        getSearchPanel().add(userNameSearchField);
 
-        getSearchPanel().add(new JLabel("姓名:"));
-        nameSearchField = new JTextField(15);
-        getSearchPanel().add(nameSearchField);
 
         // 设置查询按钮事件
-        getSearchButton().addActionListener(e -> searchUsers());
+        getSearchButton().addActionListener(e -> searchAppointments());
     }
 
-    private void searchUsers() {
-        String idStr = idSearchField.getText().trim();
-        String name = nameSearchField.getText().trim();
-        Long id = null;
+    private void searchAppointments() {
+        String userName = userNameSearchField.getText().trim();
 
-        try {
-            if (!idStr.isEmpty()) {
-                id = Long.parseLong(idStr);
-            }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "请输入有效的ID", "错误", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        List<Users> result = userDAO.search(id, name);
+        List<Appointment> result = appointmentDAO.search(userName);
         tableModel.setData(result);
         tableModel.fireTableDataChanged();
     }
@@ -61,62 +46,63 @@ public class UserPanel extends CrudPanel<Users> {
     private void setupButtonListeners() {
         // 添加按钮事件
         getAddButton().addActionListener(e -> {
-            UserDialog dialog = new UserDialog(null);
-            if (dialog.showDialog() == UserDialog.OK_OPTION) {
-                Users newUser = dialog.getUser();
-                if (userDAO.add(newUser)) {
+            AppointmentDialog dialog = new AppointmentDialog(null);
+            if (dialog.showDialog() == AppointmentDialog.OK_OPTION) {
+                Appointment newAppointment = dialog.getAppointment();
+                if (appointmentDAO.add(newAppointment)) {
                     refreshData();
-                    JOptionPane.showMessageDialog(this, "用户添加成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "预约添加成功", "成功", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(this, "用户添加失败", "错误", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "预约添加失败", "错误", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
         // 编辑按钮事件
         getEditButton().addActionListener(e -> {
-            Users selected = getSelectedUser();
+            Appointment selected = getSelectedAppointment();
             if (selected == null) {
-                JOptionPane.showMessageDialog(this, "请先选择要编辑的用户", "提示", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "请先选择要编辑的预约", "提示", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            UserDialog dialog = new UserDialog(selected);
-            if (dialog.showDialog() == UserDialog.OK_OPTION) {
-                Users updatedUser = dialog.getUser();
-                if (userDAO.update(updatedUser)) {
+            AppointmentDialog dialog = new AppointmentDialog(selected);
+            if (dialog.showDialog() == AppointmentDialog.OK_OPTION) {
+                Appointment updatedAppointment = dialog.getAppointment();
+                if (appointmentDAO.update(updatedAppointment)) {
                     refreshData();
-                    JOptionPane.showMessageDialog(this, "用户更新成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "预约更新成功", "成功", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(this, "用户更新失败", "错误", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "预约更新失败", "错误", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
         // 删除按钮事件
         getDeleteButton().addActionListener(e -> {
-            Users selected = getSelectedUser();
+            Appointment selected = getSelectedAppointment();
             if (selected == null) {
-                JOptionPane.showMessageDialog(this, "请先选择要删除的用户", "提示", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "请先选择要删除的预约", "提示", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             int confirm = JOptionPane.showConfirmDialog(this,
-                    "确定要删除用户 " + selected.getName() + " 吗?",
+                    "确定要删除预约ID为 " + selected.getId() + " 的记录吗?",
                     "确认删除", JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
-                if (userDAO.delete(selected.getId())) {
+                if (appointmentDAO.delete(selected.getId())) {
                     refreshData();
-                    JOptionPane.showMessageDialog(this, "用户删除成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "预约删除成功", "成功", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(this, "用户删除失败", "错误", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "预约删除失败", "错误", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
     }
+
     private void initializeTable() {
-        tableModel = new UserTableModel();
+        tableModel = new AppointmentTableModel();
         table = new JTable(tableModel);
 
         // 表格样式优化
@@ -152,11 +138,11 @@ public class UserPanel extends CrudPanel<Users> {
 
     @Override
     public void refreshData() {
-        tableModel.setData(userDAO.getAll());
+        tableModel.setData(appointmentDAO.getAll());
         tableModel.fireTableDataChanged();
     }
 
-    public Users getSelectedUser() {
+    public Appointment getSelectedAppointment() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow >= 0) {
             return tableModel.getItemAt(selectedRow);
@@ -164,15 +150,15 @@ public class UserPanel extends CrudPanel<Users> {
         return null;
     }
 
-    private class UserTableModel extends AbstractTableModel {
-        private String[] columnNames = {"ID", "手机号", "姓名", "性别", "角色", "身份证号", "创建时间"};
-        private List<Users> data;
+    private class AppointmentTableModel extends AbstractTableModel {
+        private String[] columnNames = {"ID", "用户", "套餐", "预约时间", "检查时间", "状态", "支付状态", "创建时间"};
+        private List<Appointment> data;
 
-        public void setData(List<Users> data) {
+        public void setData(List<Appointment> data) {
             this.data = data;
         }
 
-        public Users getItemAt(int index) {
+        public Appointment getItemAt(int index) {
             return data.get(index);
         }
 
@@ -189,18 +175,18 @@ public class UserPanel extends CrudPanel<Users> {
         }
 
         public Object getValueAt(int row, int col) {
-            Users user = data.get(row);
+            Appointment appointment = data.get(row);
             switch (col) {
-                case 0: return user.getId();
-                case 1: return user.getPhone();
-                case 2: return user.getName();
-                case 3: return user.getGender();
-                case 4: return user.getRole();
-                case 5: return user.getIdNumber();
-                case 6: return user.getCreatedAt();
+                case 0: return appointment.getId();
+                case 1: return appointment.getUserName();
+                case 2: return appointment.getPackageName();
+                case 3: return appointment.getAppointmentTime();
+                case 4: return appointment.getExamTime();
+                case 5: return appointment.getStatus();
+                case 6: return appointment.getPaymentStatus() ? "已支付" : "未支付";
+                case 7: return appointment.getCreatedAt();
                 default: return null;
             }
         }
     }
 }
-

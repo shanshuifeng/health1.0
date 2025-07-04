@@ -2,6 +2,7 @@ package com.ncu.Healthcare.Components;
 
 import com.ncu.Common.CheckItem;
 import com.ncu.Common.CheckItemGroup;
+import com.ncu.Healthcare.Dialog.CheckGroupDialog;
 import com.ncu.Healthcare.dao.CheckItemDAO;
 import com.ncu.Healthcare.dao.CheckItemGroupDAO;
 
@@ -15,11 +16,105 @@ public class CheckGroupPanel extends CrudPanel<CheckItemGroup> {
     private CheckItemGroupDAO checkItemGroupDAO;
     private JTable table;
     private CheckGroupTableModel tableModel;
-
+    private JTextField idSearchField;
+    private JTextField nameSearchField;
     public CheckGroupPanel() {
         checkItemGroupDAO = new CheckItemGroupDAO();
         initializeTable();
         refreshData();
+        setupButtonListeners();
+        setupSearchPanel();
+    }
+
+    private void setupSearchPanel() {
+        // 添加查询字段
+        getSearchPanel().add(new JLabel("ID:"));
+        idSearchField = new JTextField(8);
+        getSearchPanel().add(idSearchField);
+
+        getSearchPanel().add(new JLabel("名称:"));
+        nameSearchField = new JTextField(15);
+        getSearchPanel().add(nameSearchField);
+
+        // 设置查询按钮事件
+        getSearchButton().addActionListener(e -> searchCheckGroups());
+    }
+
+    private void searchCheckGroups() {
+        String idStr = idSearchField.getText().trim();
+        String name = nameSearchField.getText().trim();
+        Long id = null;
+
+        try {
+            if (!idStr.isEmpty()) {
+                id = Long.parseLong(idStr);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "请输入有效的ID", "错误", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        List<CheckItemGroup> result = checkItemGroupDAO.search(id, name);
+        tableModel.setData(result);
+        tableModel.fireTableDataChanged();
+    }
+
+    private void setupButtonListeners() {
+        // 添加按钮事件
+        getAddButton().addActionListener(e -> {
+            CheckGroupDialog dialog = new CheckGroupDialog(null);
+            if (dialog.showDialog() == CheckGroupDialog.OK_OPTION) {
+                CheckItemGroup newGroup = dialog.getCheckItemGroup();
+                if (checkItemGroupDAO.add(newGroup)) {
+                    refreshData();
+                    JOptionPane.showMessageDialog(this, "检查组添加成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "检查组添加失败", "错误", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // 编辑按钮事件
+        getEditButton().addActionListener(e -> {
+            CheckItemGroup selected = getSelectedCheckGroup();
+            if (selected == null) {
+                JOptionPane.showMessageDialog(this, "请先选择要编辑的检查组", "提示", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            CheckGroupDialog dialog = new CheckGroupDialog(selected);
+            if (dialog.showDialog() == CheckGroupDialog.OK_OPTION) {
+                CheckItemGroup updatedGroup = dialog.getCheckItemGroup();
+                if (checkItemGroupDAO.update(updatedGroup)) {
+                    refreshData();
+                    JOptionPane.showMessageDialog(this, "检查组更新成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "检查组更新失败", "错误", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // 删除按钮事件
+        getDeleteButton().addActionListener(e -> {
+            CheckItemGroup selected = getSelectedCheckGroup();
+            if (selected == null) {
+                JOptionPane.showMessageDialog(this, "请先选择要删除的检查组", "提示", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "确定要删除检查组 " + selected.getName() + " 吗?",
+                    "确认删除", JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                if (checkItemGroupDAO.delete(selected.getId())) {
+                    refreshData();
+                    JOptionPane.showMessageDialog(this, "检查组删除成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "检查组删除失败", "错误", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
     }
 
     private void initializeTable() {

@@ -21,6 +21,7 @@ public class MedicalStaffPanel extends JPanel {
     private CheckItemPanel checkItemPanel;
     private CheckGroupPanel checkGroupPanel;
     private UserPanel userPanel;
+    private AppointmentPanel appointmentPanel;
 
     public MedicalStaffPanel() {
         setLayout(new BorderLayout());
@@ -38,13 +39,11 @@ public class MedicalStaffPanel extends JPanel {
     private void createSidebar() {
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setBackground(new Color(51, 102, 153)); // 更专业的深蓝色
+        sidebar.setBackground(new Color(51, 102, 153));
         sidebar.setPreferredSize(new Dimension(220, Integer.MAX_VALUE));
         sidebar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // 添加导航按钮
-        String[] navItems = {"首页", "检查项", "检查组", "用户管理", "关于", "退出系统"};
-        ImageIcon[] icons = { /* 添加相应的图标 */ };
+        String[] navItems = {"首页", "检查项", "检查组", "用户管理", "预约管理", "关于", "退出系统"};
 
         for (int i = 0; i < navItems.length; i++) {
             JButton button = new JButton(navItems[i]);
@@ -91,6 +90,9 @@ public class MedicalStaffPanel extends JPanel {
                         break;
                     case "用户管理":
                         showUserManagement();
+                        break;
+                    case "预约管理":
+                        showAppointmentManagement();
                         break;
                     case "关于":
                         showMessage("关于", "这是一个医疗健康管理系统。");
@@ -151,6 +153,14 @@ public class MedicalStaffPanel extends JPanel {
         }
 
         ((CardLayout) contentPanel.getLayout()).show(contentPanel, "users");
+    }
+    private void showAppointmentManagement() {
+        if (appointmentPanel == null) {
+            appointmentPanel = new AppointmentPanel();
+            contentPanel.add(appointmentPanel, "appointments");
+        }
+
+        ((CardLayout) contentPanel.getLayout()).show(contentPanel, "appointments");
     }
 }
 

@@ -3,8 +3,16 @@ package com.ncu.Common;
 public class Package {
     private Long packageId;
     private Long testId;
+    private String name; //
 
-    // Getters and Setters
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Long getPackageId() {
         return packageId;
     }

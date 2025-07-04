@@ -12,6 +12,11 @@ public class Appointment {
     private Boolean paymentStatus;
     private LocalDateTime createdAt;
 
+    // 新增字段，用于显示
+    private String userName;
+    private String packageName;
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -74,6 +79,22 @@ public class Appointment {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 }
 

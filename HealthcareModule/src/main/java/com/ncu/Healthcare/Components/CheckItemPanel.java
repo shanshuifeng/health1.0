@@ -1,6 +1,7 @@
 package com.ncu.Healthcare.Components;
 
 import com.ncu.Common.CheckItem;
+import com.ncu.Healthcare.Dialog.CheckItemDialog;
 import com.ncu.Healthcare.dao.CheckItemDAO;
 
 import javax.swing.*;
@@ -13,11 +14,95 @@ public class CheckItemPanel extends CrudPanel<CheckItem> {
     private CheckItemDAO checkItemDAO;
     private JTable table;
     private CheckItemTableModel tableModel;
-
+    private JTextField nameSearchField;
+    private JTextField codeSearchField;
     public CheckItemPanel() {
         checkItemDAO = new CheckItemDAO();
         initializeTable();
         refreshData();
+        setupButtonListeners();
+        setupSearchPanel();
+    }
+
+    private void setupSearchPanel() {
+        // 添加查询字段
+        getSearchPanel().add(new JLabel("名称:"));
+        nameSearchField = new JTextField(15);
+        getSearchPanel().add(nameSearchField);
+
+        getSearchPanel().add(new JLabel("代码:"));
+        codeSearchField = new JTextField(15);
+        getSearchPanel().add(codeSearchField);
+
+        // 设置查询按钮事件
+        getSearchButton().addActionListener(e -> searchCheckItems());
+    }
+
+    private void searchCheckItems() {
+        String name = nameSearchField.getText().trim();
+        String code = codeSearchField.getText().trim();
+
+        List<CheckItem> result = checkItemDAO.search(name, code);
+        tableModel.setData(result);
+        tableModel.fireTableDataChanged();
+    }
+
+    private void setupButtonListeners() {
+        // 添加按钮事件
+        getAddButton().addActionListener(e -> {
+            CheckItemDialog dialog = new CheckItemDialog(null);
+            if (dialog.showDialog() == CheckItemDialog.OK_OPTION) {
+                CheckItem newItem = dialog.getCheckItem();
+                if (checkItemDAO.add(newItem)) {
+                    refreshData();
+                    JOptionPane.showMessageDialog(this, "检查项添加成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "检查项添加失败", "错误", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // 编辑按钮事件
+        getEditButton().addActionListener(e -> {
+            CheckItem selected = getSelectedCheckItem();
+            if (selected == null) {
+                JOptionPane.showMessageDialog(this, "请先选择要编辑的检查项", "提示", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            CheckItemDialog dialog = new CheckItemDialog(selected);
+            if (dialog.showDialog() == CheckItemDialog.OK_OPTION) {
+                CheckItem updatedItem = dialog.getCheckItem();
+                if (checkItemDAO.update(updatedItem)) {
+                    refreshData();
+                    JOptionPane.showMessageDialog(this, "检查项更新成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "检查项更新失败", "错误", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // 删除按钮事件
+        getDeleteButton().addActionListener(e -> {
+            CheckItem selected = getSelectedCheckItem();
+            if (selected == null) {
+                JOptionPane.showMessageDialog(this, "请先选择要删除的检查项", "提示", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "确定要删除检查项 " + selected.getName() + " 吗?",
+                    "确认删除", JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                if (checkItemDAO.delete(selected.getId())) {
+                    refreshData();
+                    JOptionPane.showMessageDialog(this, "检查项删除成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "检查项删除失败", "错误", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
     }
 
     private void initializeTable() {
@@ -107,5 +192,6 @@ public class CheckItemPanel extends CrudPanel<CheckItem> {
             }
         }
     }
+
 }
 
