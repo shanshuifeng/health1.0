@@ -11,16 +11,7 @@ public class AppMain {
         SwingUtilities.invokeLater(() -> {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
-                UserDAO userDAO = new UserDAO();
-                if (userDAO.getUserByUsername("admin") == null) {
-                    Users admin = new Users();
-                    admin.setPhone("admin");
-                    admin.setPassword("123456");
-                    admin.setName("管理员");
-                    admin.setRole("admin");
-                    userDAO.addUser(admin);
-                }
+                
 
                 LoginView loginView = new LoginView();
                 loginView.setVisible(true);

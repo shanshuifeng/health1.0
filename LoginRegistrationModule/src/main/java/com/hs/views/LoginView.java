@@ -4,7 +4,9 @@ import com.hs.utils.LoginController;
 import com.ncu.Common.Users;
 import javax.swing.*;
 import java.awt.*;
+import java.lang.reflect.Constructor;
 import java.util.prefs.Preferences;
+import com.healthsys.common.model.User;
 
 public class LoginView extends JFrame {
     private JPanel contentPanel;
@@ -131,14 +133,33 @@ public class LoginView extends JFrame {
                         );
                     }
                 } else {
-                    // 普通用户界面预留接口
-                    System.out.println("普通用户登录成功: " + user.getName());
-                    JOptionPane.showMessageDialog(
-                            null,
-                            "欢迎您，" + user.getName() + "！普通用户功能正在开发中",
-                            "登录成功",
-                            JOptionPane.INFORMATION_MESSAGE
-                    );
+                    // 普通用户直接跳转到UserModule的主界面
+                    try {
+                        Class<?> mainViewClass = Class.forName("com.healthsys.common.view.MainView");
+                        Constructor<?> constructor = mainViewClass.getConstructor(com.healthsys.common.model.User.class);
+
+                        // 将Common模块的Users对象转换为UserModule的User对象
+                        com.healthsys.common.model.User moduleUser = new com.healthsys.common.model.User();
+                        moduleUser.setId(Math.toIntExact(user.getId()));
+                        moduleUser.setPhone(user.getPhone());
+                        moduleUser.setPassword(user.getPassword());
+                        moduleUser.setName(user.getName());
+                        moduleUser.setBirthDate(java.sql.Date.valueOf(user.getBirthDate()));
+                        moduleUser.setGender(user.getGender());
+                        moduleUser.setRole(user.getRole());
+                        moduleUser.setIdNumber(user.getIdNumber());
+
+                        Object mainView = constructor.newInstance(moduleUser);
+                        dispose();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        JOptionPane.showMessageDialog(
+                                null,
+                                "无法加载用户界面: " + e.getMessage(),
+                                "系统错误",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                    }
                 }
             }
 

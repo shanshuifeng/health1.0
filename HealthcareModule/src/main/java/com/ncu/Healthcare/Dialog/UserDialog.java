@@ -91,7 +91,13 @@ public class UserDialog extends JDialog {
         user.setPhone(phoneField.getText());
         user.setPassword(new String(passwordField.getPassword()));
         user.setName(nameField.getText());
-        user.setBirthDate(java.time.LocalDate.parse(birthDateField.getText()));
+        // 检查日期字段是否为空
+        String birthDateText = birthDateField.getText();
+        if (birthDateText != null && !birthDateText.isEmpty()) {
+            user.setBirthDate(java.time.LocalDate.parse(birthDateText));
+        } else {
+            user.setBirthDate(null);  // 或者设置一个默认日期
+        }
         user.setGender((String) genderComboBox.getSelectedItem());
         user.setRole((String) roleComboBox.getSelectedItem());
         user.setIdNumber(idNumberField.getText());
