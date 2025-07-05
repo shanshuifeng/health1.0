@@ -1,7 +1,7 @@
 package com.ncu.Healthcare.Components;
 
 import com.ncu.Common.CheckItem;
-import com.ncu.Healthcare.Dialog.CheckItemDialog;
+import com.ncu.Healthcare.Views.CheckItemDialog;
 import com.ncu.Healthcare.dao.CheckItemDAO;
 
 import javax.swing.*;

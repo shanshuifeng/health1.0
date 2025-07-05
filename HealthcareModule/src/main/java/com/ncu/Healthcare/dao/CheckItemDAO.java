@@ -168,6 +168,36 @@ public class CheckItemDAO {
             return false;
         }
     }
+    public static List<CheckItem> getItemsByPackageId(Long packageId) {
+        List<CheckItem> items = new ArrayList<>();
+        String sql = "SELECT mt.* FROM medical_tests mt " +
+                "JOIN package_tests pt ON mt.id = pt.test_id " +
+                "WHERE pt.package_id = ?";
+
+        try (Connection conn = DbUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setLong(1, packageId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    CheckItem item = new CheckItem();
+                    item.setId(rs.getLong("id"));
+                    item.setName(rs.getString("name"));
+                    item.setCode(rs.getString("code"));
+                    item.setDescription(rs.getString("description"));
+                    item.setNormalRange(rs.getString("normal_range"));
+                    item.setPrice(rs.getDouble("price"));
+                    item.setCreatedAt(rs.getObject("created_at", java.time.LocalDateTime.class));
+
+                    items.add(item);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return items;
+    }
 }
 
 

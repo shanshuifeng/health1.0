@@ -280,10 +280,6 @@ class AboutView {
 
         JLabel versionLabel = new JLabel("版本: 1.0.0", JLabel.CENTER);
         versionLabel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
-
-        JLabel developerLabel = new JLabel("开发者: 丁紫岚", JLabel.CENTER);
-        developerLabel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
-
         JLabel dateLabel = new JLabel("开发日期: 2025年", JLabel.CENTER);
         dateLabel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
 
@@ -296,7 +292,6 @@ class AboutView {
         centerPanel.setBackground(new Color(245, 245, 245));
         centerPanel.add(titleLabel);
         centerPanel.add(versionLabel);
-        centerPanel.add(developerLabel);
         centerPanel.add(dateLabel);
         centerPanel.add(descLabel);
 

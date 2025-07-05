@@ -42,7 +42,8 @@ public class AppointmentDAO {
                     appointment.setAppointmentTime(rs.getObject("appointment_time", LocalDateTime.class));
                     appointment.setExamTime(rs.getObject("exam_time", LocalDateTime.class));
                     appointment.setStatus(rs.getString("status"));
-                    appointment.setPaymentStatus(rs.getBoolean("payment_status"));
+                    String paymentStatus = rs.getString("payment_status");
+                    appointment.setPaymentStatus("PAID".equalsIgnoreCase(paymentStatus));
                     appointment.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
                     appointment.setUserName(rs.getString("user_name"));
                     appointment.setPackageName(rs.getString("package_name"));
@@ -55,6 +56,9 @@ public class AppointmentDAO {
         }
 
         return appointments;
+    }
+    public enum PaymentStatus {
+        PAID, UNPAID
     }
     public boolean add(Appointment appointment) {
         String sql = "INSERT INTO appointments (user_id, package_id, appointment_time, exam_time, status, payment_status, created_at) " +
@@ -145,7 +149,8 @@ public class AppointmentDAO {
                 appointment.setAppointmentTime(rs.getObject("appointment_time", LocalDateTime.class));
                 appointment.setExamTime(rs.getObject("exam_time", LocalDateTime.class));
                 appointment.setStatus(rs.getString("status"));
-                appointment.setPaymentStatus(rs.getBoolean("payment_status"));
+                String paymentStatus = rs.getString("payment_status");
+                appointment.setPaymentStatus("PAID".equalsIgnoreCase(paymentStatus));
                 appointment.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
                 appointment.setUserName(rs.getString("user_name"));
                 appointment.setPackageName(rs.getString("package_name"));
@@ -179,7 +184,8 @@ public class AppointmentDAO {
                     appointment.setAppointmentTime(rs.getObject("appointment_time", LocalDateTime.class));
                     appointment.setExamTime(rs.getObject("exam_time", LocalDateTime.class));
                     appointment.setStatus(rs.getString("status"));
-                    appointment.setPaymentStatus(rs.getBoolean("payment_status"));
+                    String paymentStatus = rs.getString("payment_status");
+                    appointment.setPaymentStatus("PAID".equalsIgnoreCase(paymentStatus));
                     appointment.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
                     appointment.setUserName(rs.getString("user_name"));
                     appointment.setPackageName(rs.getString("package_name"));

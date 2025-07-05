@@ -1,7 +1,7 @@
 package com.ncu.Healthcare.Components;
 
 import com.ncu.Common.Users;
-import com.ncu.Healthcare.Dialog.UserDialog;
+import com.ncu.Healthcare.Views.UserDialog;
 import com.ncu.Healthcare.dao.UserDAO;
 
 import javax.swing.*;

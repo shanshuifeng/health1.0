@@ -9,21 +9,11 @@ import java.lang.reflect.Constructor;
 import java.util.prefs.Preferences;
 import com.healthsys.common.model.User;
 
-/**
- * LoginView provides authentication interface for Health System application.
- * Features include username/password login, remember me functionality,
- * and role-based redirection after successful authentication.
- */
 public class LoginView extends JFrame {
-    // Constants
     private static final String APP_NAME = "健康检查系统";
     private static final String PREFS_KEY = "health_system_prefs";
     private static final int WINDOW_WIDTH = 500;
     private static final int WINDOW_HEIGHT = 400;
-
-    // UI Constants
-    private static final Color PRIMARY_COLOR = new Color(0, 120, 215);
-    private static final Color SECONDARY_COLOR = new Color(100, 150, 100);
     private static final Color BACKGROUND_COLOR = Color.WHITE;
     private static final Font TITLE_FONT = new Font("Microsoft YaHei", Font.BOLD, 24);
     private static final Font LABEL_FONT = new Font("Microsoft YaHei", Font.PLAIN, 14);
@@ -32,7 +22,6 @@ public class LoginView extends JFrame {
     private static final int FIELD_GAP = 10;
     private static final int ROW_GAP = 15;
 
-    // Components
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
@@ -153,11 +142,11 @@ public class LoginView extends JFrame {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         panel.setOpaque(false);
 
-        loginButton = createButton("登录", PRIMARY_COLOR, e -> handleLogin());
+        loginButton = createButton("登录", Color.BLACK, e -> handleLogin());
         loginButton.setMnemonic(KeyEvent.VK_ENTER);
         getRootPane().setDefaultButton(loginButton);
 
-        registerButton = createButton("注册", SECONDARY_COLOR, e -> showRegistrationDialog());
+        registerButton = createButton("注册", Color.BLACK, e -> showRegistrationDialog());
 
         panel.add(loginButton);
         panel.add(registerButton);
@@ -169,7 +158,7 @@ public class LoginView extends JFrame {
         JButton button = new JButton(text);
         button.setFont(BUTTON_FONT);
         button.setBackground(bgColor);
-        button.setForeground(Color.WHITE);
+        button.setForeground(Color.BLACK);
         button.setFocusPainted(false);
         button.setPreferredSize(new Dimension(120, 35));
         button.addActionListener(listener);

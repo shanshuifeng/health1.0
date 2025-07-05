@@ -12,7 +12,7 @@ public class CheckItemGroupDAO {
 
     public List<CheckItemGroup> search(Long id, String name) {
         List<CheckItemGroup> groups = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT * FROM package_tests WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT * FROM test_packages WHERE 1=1");
 
         if (id != null) {
             sql.append(" AND id = ?");
@@ -39,7 +39,7 @@ public class CheckItemGroupDAO {
                     group.setName(rs.getString("name"));
                     group.setDescription(rs.getString("description"));
                     group.setPrice(rs.getDouble("price"));
-                    group.setCreatedAt(rs.getObject("created_at", java.time.LocalDateTime.class));
+                    group.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
 
                     groups.add(group);
                 }
@@ -47,12 +47,12 @@ public class CheckItemGroupDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return groups;
     }
+
     public List<CheckItemGroup> getAll() {
         List<CheckItemGroup> groups = new ArrayList<>();
-        String sql = "SELECT * FROM medical_tests";
+        String sql = "SELECT * FROM test_packages";  // 修正：查询 test_packages 表
 
         try (Connection conn = DbUtil.getConnection();
              Statement stmt = conn.createStatement();
@@ -64,14 +64,13 @@ public class CheckItemGroupDAO {
                 group.setName(rs.getString("name"));
                 group.setDescription(rs.getString("description"));
                 group.setPrice(rs.getDouble("price"));
-                group.setCreatedAt(rs.getObject("created_at", java.time.LocalDateTime.class));
+                group.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
 
                 groups.add(group);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return groups;
     }
 
@@ -95,7 +94,6 @@ public class CheckItemGroupDAO {
         }
     }
 
-    // 更新检查组
     public boolean update(CheckItemGroup group) {
         String sql = "UPDATE test_packages SET name = ?, description = ?, price = ? " +
                 "WHERE id = ?";
@@ -130,6 +128,7 @@ public class CheckItemGroupDAO {
             return false;
         }
     }
+
 }
 
 

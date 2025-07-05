@@ -1,4 +1,4 @@
-package com.ncu.Healthcare.Dialog;
+package com.ncu.Healthcare.Views;
 
 import com.ncu.Common.Users;
 import com.ncu.Healthcare.Components.CrudPanel;

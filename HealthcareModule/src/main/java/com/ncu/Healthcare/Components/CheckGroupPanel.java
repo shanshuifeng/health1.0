@@ -2,8 +2,9 @@ package com.ncu.Healthcare.Components;
 
 import com.ncu.Common.CheckItem;
 import com.ncu.Common.CheckItemGroup;
-import com.ncu.Healthcare.Dialog.CheckGroupDialog;
 import com.ncu.Healthcare.dao.CheckItemDAO;
+import com.ncu.Healthcare.Views.CheckGroupDialog;
+import com.ncu.Healthcare.Views.PackageDetailsDialog;
 import com.ncu.Healthcare.dao.CheckItemGroupDAO;
 
 import javax.swing.*;
@@ -18,6 +19,7 @@ public class CheckGroupPanel extends CrudPanel<CheckItemGroup> {
     private CheckGroupTableModel tableModel;
     private JTextField idSearchField;
     private JTextField nameSearchField;
+
     public CheckGroupPanel() {
         checkItemGroupDAO = new CheckItemGroupDAO();
         initializeTable();
@@ -28,11 +30,11 @@ public class CheckGroupPanel extends CrudPanel<CheckItemGroup> {
 
     private void setupSearchPanel() {
         // 添加查询字段
-        getSearchPanel().add(new JLabel("ID:"));
+        getSearchPanel().add(new JLabel("套餐ID:"));
         idSearchField = new JTextField(8);
         getSearchPanel().add(idSearchField);
 
-        getSearchPanel().add(new JLabel("名称:"));
+        getSearchPanel().add(new JLabel("套餐名称:"));
         nameSearchField = new JTextField(15);
         getSearchPanel().add(nameSearchField);
 
@@ -67,9 +69,9 @@ public class CheckGroupPanel extends CrudPanel<CheckItemGroup> {
                 CheckItemGroup newGroup = dialog.getCheckItemGroup();
                 if (checkItemGroupDAO.add(newGroup)) {
                     refreshData();
-                    JOptionPane.showMessageDialog(this, "检查组添加成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "体检套餐添加成功", "成功", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(this, "检查组添加失败", "错误", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "体检套餐添加失败", "错误", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -78,7 +80,7 @@ public class CheckGroupPanel extends CrudPanel<CheckItemGroup> {
         getEditButton().addActionListener(e -> {
             CheckItemGroup selected = getSelectedCheckGroup();
             if (selected == null) {
-                JOptionPane.showMessageDialog(this, "请先选择要编辑的检查组", "提示", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "请先选择要编辑的体检套餐", "提示", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -87,9 +89,9 @@ public class CheckGroupPanel extends CrudPanel<CheckItemGroup> {
                 CheckItemGroup updatedGroup = dialog.getCheckItemGroup();
                 if (checkItemGroupDAO.update(updatedGroup)) {
                     refreshData();
-                    JOptionPane.showMessageDialog(this, "检查组更新成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "体检套餐更新成功", "成功", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(this, "检查组更新失败", "错误", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "体检套餐更新失败", "错误", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -98,24 +100,44 @@ public class CheckGroupPanel extends CrudPanel<CheckItemGroup> {
         getDeleteButton().addActionListener(e -> {
             CheckItemGroup selected = getSelectedCheckGroup();
             if (selected == null) {
-                JOptionPane.showMessageDialog(this, "请先选择要删除的检查组", "提示", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "请先选择要删除的体检套餐", "提示", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             int confirm = JOptionPane.showConfirmDialog(this,
-                    "确定要删除检查组 " + selected.getName() + " 吗?",
+                    "确定要删除体检套餐 " + selected.getName() + " 吗?",
                     "确认删除", JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
                 if (checkItemGroupDAO.delete(selected.getId())) {
                     refreshData();
-                    JOptionPane.showMessageDialog(this, "检查组删除成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "体检套餐删除成功", "成功", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(this, "检查组删除失败", "错误", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "体检套餐删除失败", "错误", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
+
+        // 详情按钮事件
+        JButton detailsButton = createStyledButton("查看详情", new Color(102, 153, 204));
+        detailsButton.addActionListener(e -> {
+            CheckItemGroup selected = getSelectedCheckGroup();
+            if (selected == null) {
+                JOptionPane.showMessageDialog(this, "请先选择要查看的体检套餐", "提示", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 获取套餐包含的检查项
+            List<CheckItem> items = CheckItemDAO.getItemsByPackageId(selected.getId());
+            new PackageDetailsDialog(selected, items).setVisible(true);
+        });
+
+        // 将详情按钮添加到工具栏
+        JPanel buttonPanel = (JPanel) ((JPanel)getComponent(0)).getComponent(0);
+        buttonPanel.add(detailsButton);
     }
+
+
 
     private void initializeTable() {
         tableModel = new CheckGroupTableModel();
@@ -167,7 +189,7 @@ public class CheckGroupPanel extends CrudPanel<CheckItemGroup> {
     }
 
     private class CheckGroupTableModel extends AbstractTableModel {
-        private String[] columnNames = {"ID", "名称", "描述", "价格", "创建时间"};
+        private String[] columnNames = {"ID", "套餐名称", "套餐描述", "价格", "创建时间"};
         private List<CheckItemGroup> data;
 
         public void setData(List<CheckItemGroup> data) {
@@ -196,7 +218,7 @@ public class CheckGroupPanel extends CrudPanel<CheckItemGroup> {
                 case 0: return group.getId();
                 case 1: return group.getName();
                 case 2: return group.getDescription();
-                case 3: return group.getPrice();
+                case 3: return String.format("¥%.2f", group.getPrice());
                 case 4: return group.getCreatedAt();
                 default: return null;
             }

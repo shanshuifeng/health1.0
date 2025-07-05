@@ -73,39 +73,6 @@ public class UserDAO {
         }
     }
 
-    public boolean updateUser(Users user) {
-        String sql = "UPDATE users SET phone = ?, name = ?, birth_date = ?, gender = ?, id_number = ? WHERE id = ?";
-        try (Connection conn = DbUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            // 验证phone字段
-            stmt.setString(1, user.getPhone() != null ?
-                    user.getPhone().length() > 20 ? user.getPhone().substring(0, 20) : user.getPhone() : "");
-
-            // 验证name字段
-            stmt.setString(2, user.getName() != null ?
-                    user.getName().length() > 50 ? user.getName().substring(0, 50) : user.getName() : "");
-
-            LocalDate birthDate = user.getBirthDate() != null ? user.getBirthDate() : LocalDate.now().minusYears(20);
-            stmt.setDate(3, java.sql.Date.valueOf(birthDate));
-
-            // 验证gender字段
-            String gender = "MALE".equalsIgnoreCase(user.getGender()) ? "MALE" :
-                    "FEMALE".equalsIgnoreCase(user.getGender()) ? "FEMALE" : "MALE";
-            stmt.setString(4, gender);
-
-            // 验证id_number字段
-            stmt.setString(5, "MEDICAL".equalsIgnoreCase(user.getRole()) && user.getIdNumber() != null ?
-                    user.getIdNumber().length() > 18 ? user.getIdNumber().substring(0, 18) : user.getIdNumber() : null);
-
-            stmt.setLong(6, user.getId());
-
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     public boolean updateUserPassword(long userId, String newPassword) {
         String sql = "UPDATE users SET password = ? WHERE id = ?";
         try (Connection conn = DbUtil.getConnection();

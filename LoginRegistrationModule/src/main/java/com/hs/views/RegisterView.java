@@ -11,7 +11,6 @@ import java.time.ZoneId;
 import java.util.Date;
 
 public class RegisterView extends JFrame {
-    private JTextField usernameField;
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
     private JTextField nameField;
@@ -38,17 +37,15 @@ public class RegisterView extends JFrame {
         gbc.gridwidth = 2;
         panel.add(titleLabel, gbc);
 
-        // 用户名
-        addLabelAndField(panel, gbc, 1, "用户名:", usernameField = new JTextField(20));
-
+        // 姓名
+        addLabelAndField(panel, gbc, 4, "姓名:", nameField = new JTextField(20));
         // 密码
         addLabelAndField(panel, gbc, 2, "密码:", passwordField = new JPasswordField(20));
 
         // 确认密码
         addLabelAndField(panel, gbc, 3, "确认密码:", confirmPasswordField = new JPasswordField(20));
 
-        // 姓名
-        addLabelAndField(panel, gbc, 4, "姓名:", nameField = new JTextField(20));
+
 
         // 电话
         addLabelAndField(panel, gbc, 5, "电话:", phoneField = new JTextField(20));
@@ -93,10 +90,10 @@ public class RegisterView extends JFrame {
             }
 
             Users newUser = new Users();
-            newUser.setPhone(usernameField.getText().trim());
+            newUser.setName(nameField.getText().trim());
             newUser.setPassword(new String(passwordField.getPassword()));
             newUser.setRole("patient");
-            newUser.setName(nameField.getText().trim());
+
             newUser.setPhone(phoneField.getText().trim());
             newUser.setBirthDate(birthDateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
             newUser.setGender((String) genderComboBox.getSelectedItem());
@@ -127,7 +124,7 @@ public class RegisterView extends JFrame {
 
     private boolean validateInput() {
         // 验证用户名
-        if (usernameField.getText().isEmpty()) {
+        if (nameField.getText().isEmpty()) {
             showError("用户名不能为空");
             return false;
         }
@@ -145,12 +142,6 @@ public class RegisterView extends JFrame {
         }
         if (!password.equals(confirmPassword)) {
             showError("两次输入的密码不一致");
-            return false;
-        }
-
-        // 验证姓名
-        if (nameField.getText().isEmpty()) {
-            showError("姓名不能为空");
             return false;
         }
 

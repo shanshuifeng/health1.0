@@ -1,11 +1,10 @@
-package com.ncu.Healthcare.Dialog;
+package com.ncu.Healthcare.Views;
 
 import com.ncu.Common.Appointment;
 import com.ncu.Healthcare.Components.CrudPanel;
 import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 

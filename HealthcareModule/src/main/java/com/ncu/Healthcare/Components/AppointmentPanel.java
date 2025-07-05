@@ -1,7 +1,7 @@
 package com.ncu.Healthcare.Components;
 
 import com.ncu.Common.Appointment;
-import com.ncu.Healthcare.Dialog.AppointmentDialog;
+import com.ncu.Healthcare.Views.AppointmentDialog;
 import com.ncu.Healthcare.dao.AppointmentDAO;
 
 import javax.swing.*;

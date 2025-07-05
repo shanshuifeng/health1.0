@@ -1,17 +1,9 @@
 package com.ncu.Healthcare.Views;
 
-import com.ncu.Common.CheckItem;
-import com.ncu.Common.CheckItemGroup;
-import com.ncu.Common.Users;
 import com.ncu.Healthcare.Components.*;
-import com.ncu.Healthcare.dao.CheckItemDAO;
-import com.ncu.Healthcare.dao.CheckItemGroupDAO;
-import com.ncu.Healthcare.dao.UserDAO;
-import com.ncu.Common.Package;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -22,6 +14,7 @@ public class MedicalStaffPanel extends JPanel {
     private CheckGroupPanel checkGroupPanel;
     private UserPanel userPanel;
     private AppointmentPanel appointmentPanel;
+    private AboutView aboutView;
 
     public MedicalStaffPanel() {
         setLayout(new BorderLayout());
@@ -45,7 +38,6 @@ public class MedicalStaffPanel extends JPanel {
         sidebar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         String[] navItems = {"首页", "检查项", "检查组", "用户管理", "预约管理", "关于", "退出系统"};
-
         for (String item : navItems) {
             JButton button = new JButton(item);
             button.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -98,7 +90,7 @@ public class MedicalStaffPanel extends JPanel {
                     showAppointmentManagement();
                     break;
                 case "关于":
-                    showMessage("关于", "这是一个医疗健康管理系统。");
+                    showAbout();
                     break;
                 case "退出系统":
                     System.exit(0);
@@ -133,8 +125,12 @@ public class MedicalStaffPanel extends JPanel {
         ((CardLayout) contentPanel.getLayout()).show(contentPanel, "home");
     }
 
-    private void showMessage(String title, String message) {
-        JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
+    private void showAbout() { // 新增显示关于面板的方法
+        if (aboutView == null) {
+            aboutView = new AboutView();
+            contentPanel.add(aboutView.getAboutPanel(), "about");
+        }
+        ((CardLayout) contentPanel.getLayout()).show(contentPanel, "about");
     }
 
     private void showCheckItems() {
@@ -169,3 +165,47 @@ public class MedicalStaffPanel extends JPanel {
         ((CardLayout) contentPanel.getLayout()).show(contentPanel, "appointments");
     }
 }
+
+// AboutView 类
+class AboutView {
+    private JPanel aboutPanel;
+
+    public AboutView() {
+        initializeUI();
+    }
+
+    public JPanel getAboutPanel() { // 提供获取 aboutPanel 的方法
+        return aboutPanel;
+    }
+
+    private void initializeUI() {
+        aboutPanel = new JPanel(new BorderLayout());
+        aboutPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        aboutPanel.setBackground(new Color(245, 245, 245));
+
+        JLabel titleLabel = new JLabel("健康管理系统", JLabel.CENTER);
+        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 24));
+        titleLabel.setForeground(new Color(70, 104, 197));
+
+        JLabel versionLabel = new JLabel("版本: 1.0.0", JLabel.CENTER);
+        versionLabel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+
+        JLabel dateLabel = new JLabel("开发日期: 2025年", JLabel.CENTER);
+        dateLabel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+
+        JLabel descLabel = new JLabel("本系统为小组开发作业，提供用户界面专属预约体检、查看消息等功能。", JLabel.CENTER);
+        descLabel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+        descLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setBackground(new Color(245, 245, 245));
+        centerPanel.add(titleLabel);
+        centerPanel.add(versionLabel);
+        centerPanel.add(dateLabel);
+        centerPanel.add(descLabel);
+
+        aboutPanel.add(centerPanel, BorderLayout.CENTER);
+    }
+}
+
